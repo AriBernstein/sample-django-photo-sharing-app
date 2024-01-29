@@ -37,6 +37,24 @@ def signup(request):
         user_model = User.objects.get(username=username)
         user_profile = Profile.objects.create(user=user_model, uid=user_model.id)
         user_profile.save()
-        return redirect('login')
+        return redirect('signin')
 
     return render(request, 'signup.html')
+
+
+def signin(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+
+        user = auth.authenticate(username=username, password=password)
+        
+        if user is not None:
+            auth.login(request, user)
+            return redirect('/')
+        
+        messages.info(request, 'Invalid credentials!!')
+        return redirect('signin')
+
+
+    return render(request, 'signin.html')
