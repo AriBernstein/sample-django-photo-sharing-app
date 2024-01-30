@@ -1,13 +1,21 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, auth
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
 
 from .models import Profile
 
 # Create your views here.
+@login_required(login_url='signin')
 def index(request):
     return render(request, 'index.html')
+
+
+@login_required(login_url='signin')
+def signout(request):
+    auth.logout(request)
+    return redirect('signin')
 
 
 def signup(request):
