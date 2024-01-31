@@ -54,6 +54,23 @@ def like_post(request):
 
 
 @login_required(login_url='signin')
+def profile(request, pk:str):
+    user_obj = User.objects.get(username=pk)
+    user_profile = Profile.objects.get(user=user_obj)
+    user_posts = Post.objects.filter(user=pk).order_by('-created_at')
+    num_posts = len(user_posts)
+
+    context = {
+        'user_object': user_obj,
+        'user_profile': user_profile,
+        'user_posts': user_posts,
+        'num_posts': num_posts
+    }
+
+    return render(request, 'profile.html', context)
+
+
+@login_required(login_url='signin')
 def settings(request):
     user_profile = Profile.objects.get(user=request.user)
     
