@@ -12,7 +12,9 @@ def index(request):
     user_obj = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_obj)
     # user_profile = Profile.objects.get(user=request.user)
-    return render(request, 'index.html', {"user_profile": user_profile})
+    posts = Post.objects.all().order_by('-created_at')
+
+    return render(request, 'index.html', {"user_profile": user_profile, "posts": posts})
 
 
 @login_required(login_url='signin')
