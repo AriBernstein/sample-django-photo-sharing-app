@@ -67,6 +67,16 @@ def profile(request, pk:str):
         'num_posts': num_posts
     }
 
+    if request.method == 'POST':
+        if request.FILES.get('profile_img') is None:
+            image = user_profile.profile_img
+        else:
+            image = request.FILES.get('profile_img')
+        
+        user_profile.profile_img = image
+        user_profile.save()
+        return redirect('profile', pk=pk)
+
     return render(request, 'profile.html', context)
 
 

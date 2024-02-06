@@ -51,14 +51,22 @@
 							<div class="user-avatar">
 								<figure>
 									<img src="{{ user_profile.profile_img.url }}" style="height: 250px; width: 100%;" alt="">
-									<form class="edit-phto">
+									<form action="" method="POST" enctype="multipart/form-data" class="edit-phto" id="profile-image-form">
+										{% csrf_token %}
 										<i class="fa fa-camera-retro"></i>
 										<label class="fileContainer">
+											<input type="file" name="profile_img" placeholder="" class="shadow-none bg-gray-100" onchange="submitForm()">
 											<a href="#account-settings">Upload Profile Photo</a>
 										</label>
 									</form>
 								</figure>
 							</div>
+
+							<script>
+								function submitForm() {
+									document.getElementById("profile-image-form").submit();
+								}
+							</script>
 						</div>
 						<div class="col-lg-10 col-sm-9">
 							<div class="timeline-info">
