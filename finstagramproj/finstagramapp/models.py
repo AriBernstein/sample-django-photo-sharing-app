@@ -37,3 +37,11 @@ class LikePost(models.Model):
 
     def __str__(self):
         return f'{self.post_id}-{self.username}'
+    
+
+class Follow(models.Model):
+    follower = models.CharField(max_length=100)
+    following = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'{self.follower} follows {self.following}'

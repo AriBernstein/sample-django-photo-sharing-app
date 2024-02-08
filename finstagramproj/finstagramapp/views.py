@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
 
-from .models import Profile, Post, LikePost
+from .models import Profile, Post, LikePost, Follow
 
 # Create your views here.
 @login_required(login_url='signin')
@@ -54,17 +54,51 @@ def like_post(request):
 
 
 @login_required(login_url='signin')
+def follow(request):
+    if request.method == 'POST':
+        current_user = request.user.username
+        user_to_follow = request.POST['user_to_follow']
+
+        if Follow.objects.filter(follower=current_user, following=user_to_follow).exists():
+            existing_follower = Follow.objects.get(follower=current_user, following=user_to_follow)
+            existing_follower.delete()
+        else:
+            new_follower = Follow.objects.create(follower=current_user, following=user_to_follow)
+            new_follower.save()
+
+        return redirect("profile", pk=user_to_follow)
+        
+    return redirect('/')    
+
+
+@login_required(login_url='signin')
 def profile(request, pk:str):
     user_obj = User.objects.get(username=pk)
     user_profile = Profile.objects.get(user=user_obj)
     user_posts = Post.objects.filter(user=pk).order_by('-created_at')
     num_posts = len(user_posts)
+    num_posts_label = "1 post" if num_posts == 1 else f"{num_posts} posts"
+
+    current_user_is_following = Follow.objects.filter(follower=request.user.username, following=pk).exists()
+    if current_user_is_following:
+        following_button_label = "Unfollow"
+    else:
+        following_button_label = "Follow"
+
+    num_followers = len(Follow.objects.filter(following=pk))
+    followers_label = "1 follower" if num_followers == 1 else f"{num_followers} followers"
+    
+    num_following = len(Follow.objects.filter(follower=pk))
+    following_label = f"{num_following} following"
 
     context = {
         'user_object': user_obj,
         'user_profile': user_profile,
         'user_posts': user_posts,
-        'num_posts': num_posts
+        'num_posts_label': num_posts_label,
+        'following_button_label': following_button_label,
+        'num_followers_label': followers_label,
+        'num_following_label': following_label
     }
 
     if request.method == 'POST':
