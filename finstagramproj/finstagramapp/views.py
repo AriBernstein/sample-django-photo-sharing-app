@@ -51,6 +51,36 @@ def upload(request):
 
 
 @login_required(login_url='signin')
+def search(request):
+
+    if request.method == 'POST':
+        user_object = User.objects.get(username=request.user.username)
+        user_profile = Profile.objects.get(user=user_object)
+        username_search = request.POST['username']
+        username_search_results = User.objects.filter(username__icontains=username_search)
+        
+        username_search_profile = []
+        username_search_profile_list = []
+        for user in username_search_results:
+            username_search_profile.append(user.id)
+
+        for user_id in username_search_profile:
+            search_query_profile = (Profile.objects.get(uid=user_id))
+            username_search_profile_list.append(search_query_profile)
+
+        # username_search_profile_list = list(*username_search_profile_list)
+
+
+        return render(
+            request,
+            'search.html',
+            { 'user_profile': user_profile, 'username_profile_list': username_search_profile_list }
+        )
+
+    return redirect('/')
+
+
+@login_required(login_url='signin')
 def like_post(request):
     username = request.user.username
     post_id = request.GET.get('post_id')
