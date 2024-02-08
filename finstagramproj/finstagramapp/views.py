@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
 
+from itertools import chain
+
 from .models import Profile, Post, LikePost, Follow
 
 # Create your views here.
@@ -12,9 +14,27 @@ def index(request):
     user_obj = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_obj)
     # user_profile = Profile.objects.get(user=request.user)
-    posts = Post.objects.all().order_by('-created_at')
+    # posts = Post.objects.all().order_by('-created_at')
+    
+    following_list = []
+    feed = []
 
-    return render(request, 'index.html', {"user_profile": user_profile, "posts": posts})
+    user_follows = Follow.objects.filter(follower=request.user.username)
+    for follow in user_follows:
+        following_list.append(follow.following)
+
+    for username in following_list:
+        followed_user_feed = Post.objects.filter(user=username)
+        feed.extend(followed_user_feed)
+
+    # Tutorial stated this had to be done before sending to frontend but local testing works without doing so.
+    # feed_list = list(chain(*feed))
+
+    return render(
+        request,
+        'index.html',
+        { "user_profile": user_profile, "posts": feed }
+    )
 
 
 @login_required(login_url='signin')
